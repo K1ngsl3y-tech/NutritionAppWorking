@@ -2,108 +2,141 @@ package com.kingsley.fitnessapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 @Composable
-fun NutritionScreen(navController: NavController) {
-    Column(
+fun NutritionScreen(navController: NavHostController) {
+    val backgroundColor = Color(0xFFF8F9FA)
+    val titleColor = Color(0xFF2C3E50)
+    val cardColor = Color(0xFFE9ECEF)
+    val textColor = Color(0xFF343A40)
+    val accentColor = Color(0xFF1ABC9C) // Teal
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .background(backgroundColor)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = "Your Daily Nutrition",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Meal Plan Section
-        Text("Meal Plan", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-        MealCard("Breakfast", "Oatmeal, Banana, Coffee")
-        MealCard("Lunch", "Grilled Chicken, Rice, Salad")
-        MealCard("Dinner", "Steamed Fish, Veggies")
-        MealCard("Snacks", "Nuts, Greek Yogurt")
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Calorie Tracker
-        Text("Calorie Tracker", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-        LinearProgressIndicator(
-            progress = 0.65f,
-            color = Color.Red,
-            trackColor = Color.Gray,
-            modifier = Modifier.fillMaxWidth().height(10.dp).padding(vertical = 8.dp)
-        )
-        Text("1300 / 2000 kcal", color = Color.White)
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { /* TODO: Add calorie */ }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Add Calories")
+        item {
+            Text(
+                text = "Nutrition Overview",
+                fontSize = 28.sp,
+                color = accentColor,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Macronutrient Breakdown
-        Text("Macronutrient Breakdown", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-        MacroBar("Carbs", 0.7f, Color.Red)
-        MacroBar("Proteins", 0.5f, Color.Green)
-        MacroBar("Fats", 0.4f, Color.Blue)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Water Tracker
-        Text("Water Tracker", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-        Text("6 / 8 Glasses", color = Color.White)
-        Button(onClick = { /* TODO: Add water */ }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Add Glass")
+        item {
+            SectionCard(
+                title = "Macronutrients",
+                contentList = listOf(
+                    "Protein: Helps with muscle growth and repair.",
+                    "Carbs: Provides energy for workouts.",
+                    "Fats: Supports hormone health and energy."
+                ),
+                cardColor = cardColor,
+                titleColor = titleColor,
+                textColor = textColor
+            )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        item {
+            SectionCard(
+                title = "Recommended Meals",
+                contentList = listOf(
+                    "Breakfast: Oatmeal, banana, eggs.",
+                    "Lunch: Grilled chicken, brown rice, veggies.",
+                    "Snack: Greek yogurt with berries.",
+                    "Dinner: Salmon, sweet potatoes, spinach.",
+                    "Post Workout: Protein shake and banana."
+                ),
+                cardColor = cardColor,
+                titleColor = titleColor,
+                textColor = textColor
+            )
+        }
+
+        item {
+            SectionCard(
+                title = "Hydration",
+                contentList = listOf(
+                    "Drink 2–3L of water daily.",
+                    "Hydrate more if you're training.",
+                    "Add lemon or cucumber for flavor."
+                ),
+                cardColor = cardColor,
+                titleColor = titleColor,
+                textColor = textColor
+            )
+        }
+
+        item {
+            SectionCard(
+                title = "Tips",
+                contentList = listOf(
+                    "Avoid skipping meals.",
+                    "Track your calories and macros.",
+                    "Eat whole foods, avoid processed junk.",
+                    "Plan your meals ahead of time.",
+                    "Use a food diary or app to monitor intake.",
+                    "Don't fear healthy fats like avocado and nuts.",
+                    "Balance your meals with protein, carbs and fats.",
+                    "Avoid sugary drinks—choose water or tea instead.",
+                    "Cheat meals are okay in moderation.",
+                    "Consistency beats perfection."
+                ),
+                cardColor = cardColor,
+                titleColor = titleColor,
+                textColor = textColor
+            )
+        }
+
+        item {
+            SectionCard(
+                title = "Superfoods to Try",
+                contentList = listOf(
+                    "Avocados", "Quinoa", "Blueberries", "Chia seeds", "Kale",
+                    "Sweet potatoes", "Almonds", "Eggs", "Green tea", "Salmon"
+                ),
+                cardColor = cardColor,
+                titleColor = titleColor,
+                textColor = textColor
+            )
+        }
     }
 }
 
 @Composable
-fun MealCard(title: String, items: String) {
+fun SectionCard(
+    title: String,
+    contentList: List<String>,
+    cardColor: Color,
+    titleColor: Color,
+    textColor: Color
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+        colors = CardDefaults.cardColors(containerColor = cardColor),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(title, fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
-            Text(items, color = Color.White)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = titleColor)
+            Spacer(modifier = Modifier.height(8.dp))
+            contentList.forEach {
+                Text(text = "• $it", fontSize = 16.sp, color = textColor, modifier = Modifier.padding(bottom = 4.dp))
+            }
         }
     }
-}
-
-@Composable
-fun MacroBar(name: String, progress: Float, color: Color) {
-    Text(name, color = Color.White)
-    LinearProgressIndicator(
-        progress = progress,
-        color = color,
-        trackColor = Color.Gray,
-        modifier = Modifier.fillMaxWidth().height(8.dp).padding(bottom = 12.dp)
-    )
 }

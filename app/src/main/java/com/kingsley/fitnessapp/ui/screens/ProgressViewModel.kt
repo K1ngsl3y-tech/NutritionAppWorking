@@ -1,21 +1,21 @@
-package com.kingsley.fitnessapp.ui.screens
-
-
-import androidx.compose.runtime.mutableStateListOf
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import java.text.SimpleDateFormat
-import java.util.*
+import com.kingsley.fitnessapp.data.Progress
+import com.kingsley.fitnessapp.data.ProgressRepository
+import com.kingsley.fitnessapp.data.ProgressDatabase
 
-data class WorkoutLog(
-    val title: String,
-    val timestamp: String
-)
+class ProgressViewModel(application: Application) : AndroidViewModel(application) {
 
-class ProgressViewModel : ViewModel() {
-    val workoutLogs = mutableStateListOf<WorkoutLog>()
+    private val progressRepository: ProgressRepository =
+        ProgressRepository(ProgressDatabase.getDatabase(application).progressDao())
 
-    fun addLog(workoutTitle: String) {
-        val timestamp = SimpleDateFormat("dd MMM yyyy - HH:mm", Locale.getDefault()).format(Date())
-        workoutLogs.add(WorkoutLog(workoutTitle, timestamp))
+    // LiveData to observe all progress entries
+    val allProgress: LiveData<List<Progress>> = progressRepository.getAllProgress()
+
+    // Add new progress entry
+    suspend fun addNewProgress(progress: Progress) {
+        progressRepository.addNewProgress(progress)
     }
 }

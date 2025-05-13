@@ -1,29 +1,28 @@
-package com.kingsley.fitnessapp.ui.screens
+package com.kingsley.fitnessapp.ui.viewmodel
 
-
-
-import androidx.compose.runtime.mutableStateListOf
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
-import java.text.SimpleDateFormat
-import java.util.*
-
-data class ScheduledWorkout(
-    val date: String, // "2025-05-10"
-    val workout: String
-)
+import java.time.LocalDate
 
 class CalendarViewModel : ViewModel() {
-    val scheduledWorkouts = mutableStateListOf<ScheduledWorkout>()
+    // Mutable state to hold the selected date (current month by default)
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val _selectedDate = mutableStateOf(LocalDate.now())
+    @RequiresApi(Build.VERSION_CODES.O)
+    val selectedDate: State<LocalDate> = _selectedDate
 
-    fun addWorkout(date: String, workout: String) {
-        scheduledWorkouts.add(ScheduledWorkout(date, workout))
+    // Function to change the selected month (increment or decrement)
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun changeMonth(increment: Int) {
+        _selectedDate.value = _selectedDate.value.plusMonths(increment.toLong())
     }
 
-    fun getWorkoutsForDate(date: String): List<ScheduledWorkout> {
-        return scheduledWorkouts.filter { it.date == date }
-    }
-
-    fun getAllDates(): List<String> {
-        return scheduledWorkouts.map { it.date }.distinct()
+    // Function to reset the selected month to the current month
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setCurrentMonth() {
+        _selectedDate.value = LocalDate.now()
     }
 }

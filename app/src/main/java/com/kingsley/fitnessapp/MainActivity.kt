@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,12 +37,11 @@ fun FitnessApp() {
                 composable(Route.Login) { LoginScreen(navController) }
                 composable(Route.Register) { RegisterScreen(navController) }
                 composable(Route.Home) { HomeScreen(navController) }
-                composable(Route.Progress) { ProgressScreen() } // 👈 Fixed
-                composable(Route.Settings) { SettingsScreen() }
+                composable(Route.Progress) { ProgressHistoryScreen(navController) }  // Pass navController here
+                composable(Route.Settings) { SettingsScreen(navController) }
                 composable(Route.Nutrition) { NutritionScreen(navController) }
                 composable(Route.Calendar) { CalendarScreen(navController) }
             }
-
         }
     }
 }

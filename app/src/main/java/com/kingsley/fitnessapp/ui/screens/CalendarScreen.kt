@@ -1,172 +1,176 @@
 package com.kingsley.fitnessapp.ui.screens
 
+import android.os.Build
+import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Fireplace
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavController
-import java.time.*
-import java.time.format.TextStyle
-import java.util.*
+import androidx.navigation.compose.rememberNavController
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarScreen(navController: NavController) {
-    val today = remember { LocalDate.now() }
-    val currentMonth = remember { YearMonth.now() }
-    val daysInMonth = currentMonth.lengthOfMonth()
-    val firstDayOfWeek = currentMonth.atDay(1).dayOfWeek.value % 7
+    val currentMonth = remember { mutableStateOf(LocalDate.now().month) }
+    val currentYear = remember { mutableStateOf(LocalDate.now().year) }
 
-    val selectedDate = remember { mutableStateOf(today) }
+    val daysInMonth = remember { mutableStateOf(getDaysInMonth(currentMonth.value, currentYear.value)) }
+    val daySelected = remember { mutableStateOf<TextFieldValue>(TextFieldValue("")) }
 
-    val streak = 5  // Example streak
-    val quote = "Push yourself, because no one else is going to do it for you."
+    val primaryColor = Color(0xFF4A90E2) // Light Blue for primary color
+    val backgroundColor = Color(0xFFF5F8FA) // Light gray background for softness
+    val textColor = Color(0xFF2C3E50) // Dark gray text color for readability
 
-    val dummyDayInfo = mapOf(
-        today to "Workout: Full Body + Nutrition: Balanced Meal",
-        today.minusDays(1) to "Rest Day",
-        today.minusDays(2) to "Workout: Cardio + Nutrition: High Protein"
-    )
-
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { /* Add action */ },
-                containerColor = Color.Red,
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Activity")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+            .padding(16.dp)
+    ) {
+        // Header with navigation to the previous and next month
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = {
+                currentMonth.value = currentMonth.value.minus(1)
+                daysInMonth.value = getDaysInMonth(currentMonth.value, currentYear.value)
+            }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Previous Month", tint = primaryColor)
+            }
+            Text(
+                text = "${currentMonth.value.name} ${currentYear.value}",
+                style = MaterialTheme.typography.headlineMedium.copy(color = textColor) // Typography with color
+            )
+            IconButton(onClick = {
+                currentMonth.value = currentMonth.value.plus(1)
+                daysInMonth.value = getDaysInMonth(currentMonth.value, currentYear.value)
+            }) {
+                Icon(Icons.Default.ArrowForward, contentDescription = "Next Month", tint = primaryColor)
             }
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Days of the week header
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " ${currentMonth.year}",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Weekday headers
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach {
-                    Text(text = it, fontSize = 12.sp, color = Color.Gray)
-                }
+            listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach {
+                Text(text = it, style = MaterialTheme.typography.bodyMedium.copy(color = textColor)) // Correct typography
             }
+        }
 
-            Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            // Calendar Grid
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
-                userScrollEnabled = false,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(320.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                // Empty cells before 1st day
-                items(firstDayOfWeek) {
-                    Box(modifier = Modifier.size(36.dp))
-                }
-
-                // Days
-                items(daysInMonth) { dayIndex ->
-                    val date = currentMonth.atDay(dayIndex + 1)
-                    val isSelected = selectedDate.value == date
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(42.dp)
-                            .clip(CircleShape)
-                            .background(
-                                when {
-                                    isSelected -> Color.Red
-                                    dummyDayInfo.containsKey(date) -> Color.DarkGray
-                                    else -> Color.Black
-                                }
-                            )
-                            .clickable { selectedDate.value = date }
-                    ) {
-                        Text(
-                            text = "${dayIndex + 1}",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
+        // Calendar Grid for days
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            for (week in daysInMonth.value.chunked(7)) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    week.forEach { day ->
+                        DayBox(day = day, daySelected = daySelected, primaryColor = primaryColor)
                     }
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            // Summary for selected day
-            Text(
-                text = "Summary for ${selectedDate.value.dayOfMonth} ${selectedDate.value.month.name.lowercase().replaceFirstChar { it.uppercase() }}:",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White
-            )
-            Text(
-                text = dummyDayInfo[selectedDate.value] ?: "No activity logged.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.LightGray,
-                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
-            )
+        // Notes Section
+        Text("Add your notes for the selected day:", style = MaterialTheme.typography.bodyMedium.copy(color = textColor)) // Typography with color
+        BasicTextField(
+            value = daySelected.value,
+            onValueChange = { daySelected.value = it },
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor) // Correct typography
+        )
 
-            // Streak Tracker
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Buttons to navigate to other parts of the app
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = {
+                    navController.navigate("Nutrition")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Fireplace,
-                    contentDescription = "Streak",
-                    tint = Color.Red
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Current Streak: $streak days",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
-                )
+                Text("View Nutrition Plan", color = Color.White)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Motivational Quote
-            Text(
-                text = "🔥 Motivation",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.Red
-            )
-            Text(
-                text = quote,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            Button(
+                onClick = {
+                    navController.navigate("Progress")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+            ) {
+                Text("Track Progress", color = Color.White)
+            }
         }
     }
+}
+
+@Composable
+fun DayBox(day: String?, daySelected: MutableState<TextFieldValue>, primaryColor: Color) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .padding(4.dp)
+            .background(
+                color = Color.Gray.copy(alpha = 0.2f),
+                shape = MaterialTheme.shapes.small
+            )
+            .clickable {
+                day?.let {
+                    daySelected.value = TextFieldValue("Notes for $it")
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        if (day != null) {
+            Text(text = day, style = MaterialTheme.typography.bodyMedium.copy(color = primaryColor)) // Day text styled with primary color
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun getDaysInMonth(month: java.time.Month, year: Int): List<String> {
+    val startOfMonth = LocalDate.of(year, month, 1)
+    val endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth())
+    val daysInMonth = mutableListOf<String>()
+    for (day in startOfMonth.dayOfWeek.value..endOfMonth.dayOfWeek.value) {
+        daysInMonth.add(day.toString())
+    }
+    return daysInMonth
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true)
+@Composable
+fun PreviewCalendarScreen() {
+    CalendarScreen(navController = rememberNavController())
 }

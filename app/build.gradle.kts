@@ -54,9 +54,12 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.1.0") // Updated
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.0")
     implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     implementation ("androidx.room:room-runtime:2.6.1")
     implementation(libs.androidx.runtime.livedata)
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
     implementation ("androidx.compose.material:material-icons-extended:<latest-version>")
 
     kapt ("androidx.room:room-compiler:2.6.1")

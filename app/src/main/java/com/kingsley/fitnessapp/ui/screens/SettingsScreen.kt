@@ -2,119 +2,165 @@ package com.kingsley.fitnessapp.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kingsley.fitnessapp.R
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.kingsley.fitnessapp.ui.screens.SettingsViewModel
 
 @Composable
-fun SettingsScreen() {
-    var isDarkTheme by remember { mutableStateOf(false) }
-    var workoutNotifs by remember { mutableStateOf(true) }
-    var nutritionNotifs by remember { mutableStateOf(true) }
-    var reminders by remember { mutableStateOf(true) }
+fun SettingsScreen(navController: NavController, settingsViewModel: SettingsViewModel = viewModel()) {
+    val userProfile by settingsViewModel.userProfile.observeAsState(null)
+    val isDarkMode = settingsViewModel.isDarkMode.collectAsState(initial = false)
+    val notificationsEnabled = settingsViewModel.notificationsEnabled.collectAsState(initial = true)
+    val dailyGoal by settingsViewModel.dailyCalorieGoal.collectAsState(initial = "2500")
+
+    val primaryColor = Color(0xFF4A90E2)
+    val backgroundColor = Color(0xFFF5F8FA)
+    val textColor = Color(0xFF2C3E50)
+
+    val username = userProfile?.username ?: "John Doe"
+    val profilePicture = userProfile?.profilePictureUrl ?: "https://example.com/default-profile.jpg"
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .background(Color.Black)
+            .background(backgroundColor)
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        // Profile Header
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+        Text(
+            text = "Settings",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = primaryColor
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("User Profile", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = textColor)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Profile Image",
+                painter = rememberAsyncImagePainter(profilePicture),
+                contentDescription = "Profile Picture",
                 modifier = Modifier
-                    .size(60.dp)
+                    .size(64.dp)
                     .clip(CircleShape)
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text("Kingsley Solomon", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("xxxsoloxxxgamer@gmail.com", color = Color.Gray, fontSize = 14.sp)
-            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = username,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = textColor
+            )
         }
 
-        Divider(color = Color.Gray)
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Theme
-        SettingToggleItem("Dark Mode", isDarkTheme) { isDarkTheme = it }
-
-        // Notifications
-        SettingToggleItem("Workout Notifications", workoutNotifs) { workoutNotifs = it }
-        SettingToggleItem("Nutrition Notifications", nutritionNotifs) { nutritionNotifs = it }
-        SettingToggleItem("Reminder Alerts", reminders) { reminders = it }
-
-        // Preferences
-        SettingItem("Units: Kilograms") {}
-        SettingItem("Language: English") {}
-
-        // Account & Feedback
-        SettingItem("Change Password") {}
-        SettingItem("Privacy Settings") {}
-        SettingItem("Rate the App") {}
-        SettingItem("Send Feedback") {}
-
-        // About
-        SettingItem("App Version: 1.0.0") {}
-        SettingItem("About Developer") {}
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Logout Button
-        Button(
-            onClick = { /* Log out logic */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+        Text("Theme Settings", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = textColor)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Logout", color = Color.White)
+            Text("Dark Mode", fontSize = 18.sp)
+            Switch(
+                checked = isDarkMode.value,
+                onCheckedChange = { settingsViewModel.toggleDarkMode(it) },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = primaryColor,
+                    uncheckedThumbColor = Color.Gray
+                )
+            )
         }
-    }
-}
 
-@Composable
-fun SettingToggleItem(title: String, value: Boolean, onToggle: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(title, color = Color.White, fontSize = 16.sp)
-        Switch(checked = value, onCheckedChange = onToggle)
-    }
-}
+        Spacer(modifier = Modifier.height(24.dp))
 
-@Composable
-fun SettingItem(title: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(title, color = Color.White, fontSize = 16.sp)
+        Text("Notifications", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = textColor)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Enable Notifications", fontSize = 18.sp)
+            Switch(
+                checked = notificationsEnabled.value,
+                onCheckedChange = { settingsViewModel.toggleNotifications(it) },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = primaryColor,
+                    uncheckedThumbColor = Color.Gray
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Goal Settings", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = textColor)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("Set Daily Calorie Goal", fontSize = 18.sp)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = dailyGoal,
+            onValueChange = { settingsViewModel.updateDailyCalorieGoal(it) },
+            label = { Text("Calories") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = primaryColor,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = primaryColor
+            )
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = { settingsViewModel.logout() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("Logout", color = Color.White, fontSize = 16.sp)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { settingsViewModel.resetAppData() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("Reset App Data", color = Color.White, fontSize = 16.sp)
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
